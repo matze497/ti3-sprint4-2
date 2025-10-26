@@ -8,7 +8,9 @@ public record PessoaResponseDTO(
         String nome,
         String cpfCnpj,
         LocalDate dataNascimento,
-        String origem
+        String origem,
+        String funcao,
+        String observacao
 ) {
 
     public PessoaResponseDTO(Pessoa pessoa) {
@@ -17,7 +19,9 @@ public record PessoaResponseDTO(
                 pessoa.getNome(),
                 pessoa.getCpfCnpj(),
                 pessoa.getDataNascimento(),
-                pessoa.getOrigem()
+                pessoa.getOrigem(),
+                pessoa.getFuncao(),
+                pessoa.getObservacao()
         );
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,12 @@ import java.util.stream.Collectors;
 public class PessoaController {
 
     private final PessoaService pessoaService;
+
+    @GetMapping
+    public ResponseEntity<List<PessoaResponseDTO>> buscarTodasPessoas() {
+        List<PessoaResponseDTO> pessoas = pessoaService.buscarTodasPessoas();
+        return ResponseEntity.ok(pessoas);
+    }
 
     @PostMapping
     public ResponseEntity<PessoaResponseDTO> criarPessoa(@Valid @RequestBody PessoaAddRequestDTO dto) {

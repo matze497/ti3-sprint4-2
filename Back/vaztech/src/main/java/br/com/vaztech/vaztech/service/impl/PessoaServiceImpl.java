@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,8 @@ public class PessoaServiceImpl implements PessoaService {
         novaPessoa.setCpfCnpj(dto.cpfCnpj());
         novaPessoa.setDataNascimento(dto.dataNascimento());
         novaPessoa.setOrigem(dto.origem());
+        novaPessoa.setFuncao(dto.funcao());
+        novaPessoa.setObservacao(dto.observacao());
 
         Pessoa pessoaSalva = pessoaRepository.save(novaPessoa);
 
@@ -43,7 +47,6 @@ public class PessoaServiceImpl implements PessoaService {
             pessoa.setNome(dto.nome());
         }
         if (dto.cpfCnpj() != null) {
-            // Criar função de validação de cpf/cnpj único igual tem na classe FuncionarioServiceImpl
             pessoa.setCpfCnpj(dto.cpfCnpj());
         }
         if (dto.dataNascimento() != null) {
@@ -52,9 +55,23 @@ public class PessoaServiceImpl implements PessoaService {
         if (dto.origem() != null) {
             pessoa.setOrigem(dto.origem());
         }
+        if (dto.funcao() != null) {
+            pessoa.setFuncao(dto.funcao());
+        }
+        if (dto.observacao() != null) {
+            pessoa.setObservacao(dto.observacao());
+        }
 
         Pessoa pessoaAtualizada = pessoaRepository.save(pessoa);
 
         return new PessoaResponseDTO(pessoaAtualizada);
+    }
+
+    @Override
+    public List<PessoaResponseDTO> buscarTodasPessoas() {
+        List<Pessoa> pessoas = pessoaRepository.findAll();
+        return pessoas.stream()
+                .map(PessoaResponseDTO::new)
+                .collect(Collectors.toList());
     }
 }

@@ -13,5 +13,11 @@ public record PessoaUpdateRequestDTO(
         LocalDate dataNascimento,
 
         @Size(max = 50, message = "Os dados sobre a origem da pessoa deve ter no máximo 50 caracteres")
-        String origem
+        String origem,
+
+        @Size(max = 20, message = "Função deve ter no máximo 20 caracteres")
+        String funcao,
+
+        @Size(max = 500, message = "Observação deve ter no máximo 500 caracteres")
+        String observacao
 ) {}

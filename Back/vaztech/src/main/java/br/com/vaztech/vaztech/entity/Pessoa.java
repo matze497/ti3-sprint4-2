@@ -26,4 +26,10 @@ public class Pessoa {
 
     @Column(name = "origem", length = 50)
     private String origem;
+
+    @Column(name = "funcao", length = 20)
+    private String funcao;
+
+    @Column(name = "observacao", length = 500)
+    private String observacao;
 }

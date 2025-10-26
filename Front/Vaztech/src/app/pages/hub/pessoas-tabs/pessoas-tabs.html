@@ -1,38 +1,157 @@
-<div class="card flex ">
-    <p-multiselect [options]="funcao" [(ngModel)]="selectedCities" optionLabel="name" placeholder="Filtrar " [maxSelectedLabels]="3" class="w-full md:w-80" />
-</div>
-<div class="mb-4 p-6 flex items-center ">
-    <p-card [style]="{ width: '25rem', overflow: 'hidden' }">
-        <ng-template #header>
-            <img alt="Card" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
-        </ng-template>
-        <ng-template #title> Pessoa 01 </ng-template>
-        <ng-template #subtitle> função </ng-template>
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt
-            quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque quas!
-        </p>
-        <ng-template #footer>
-            <div class="flex gap-4 mt-1">
-                <p-button label="Editar" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
-            </div>
-        </ng-template>
-        
-    </p-card>
+<p-toast />
+<main>
+  <p-toolbar>
+    <ng-template #start>
+      <section>
+        <p-iconfield iconPosition="left">
+          <p-inputicon class="pi pi-search" />
+          <input
+            [(ngModel)]="searchText"
+            (ngModelChange)="filtrarPessoas()"
+            type="text"
+            pInputText
+            placeholder="Pesquisar"
+            class="w-96"
+          />
+        </p-iconfield>
+      </section>
+    </ng-template>
+    <ng-template #end>
+      <p-button
+        label="Cadastrar Pessoa"
+        icon="pi pi-plus"
+        (click)="abrirModalCadastrar()"
+      ></p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <div class="flex gap-4 flex-wrap pt-4 pb-4">
+    @if (pessoasPaginadas.length > 0) {
+      @for (pessoa of pessoasPaginadas; track pessoa.id) {
         <p-card [style]="{ width: '25rem', overflow: 'hidden' }">
-        <ng-template #header>
-            <img alt="Card" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
-        </ng-template>
-        <ng-template #title> Pessoa 02 </ng-template>
-        <ng-template #subtitle> função </ng-template>
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt
-            quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque quas!
+          <ng-template #title>
+            <section class="flex justify-between items-center">
+              <div>
+                <span class="font-bold">{{ pessoa.nome }}</span>
+              </div>
+              <p-button
+                icon="pi pi-pen-to-square"
+                [text]="true"
+                severity="secondary"
+                [rounded]="true"
+                (click)="abrirModalEditar(pessoa)"
+              ></p-button>
+            </section>
+          </ng-template>
+          <ng-template #subtitle>
+            <span class="text-sm text-gray-600">{{ pessoa.funcao || 'Sem função' }}</span>
+          </ng-template>
+          <div class="space-y-2">
+            <p><strong>CPF/CNPJ:</strong> {{ pessoa.cpfCnpj }}</p>
+            <p class="text-sm text-gray-700">
+              {{ pessoa.observacao || 'Sem observações' }}
+            </p>
+          </div>
+        </p-card>
+      }
+    } @else {
+      <p-card header="Não há pessoas cadastradas!" class="w-full">
+        <p class="m-0">
+          Comece a adicionar pessoas no sistema para vê-las aqui!
         </p>
-        <ng-template #footer>
-            <div class="flex gap-4 mt-1">
-                <p-button label="Editar" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
-            </div>
-        </ng-template>
-    </p-card>
-</div>
+      </p-card>
+    }
+  </div>
+
+  @if (totalRegistros > itensPorPagina) {
+    <div class="flex justify-center pt-4">
+      <p-paginator
+        [rows]="itensPorPagina"
+        [totalRecords]="totalRegistros"
+        [rowsPerPageOptions]="[6, 12, 24]"
+        (onPageChange)="onPageChange($event)"
+      ></p-paginator>
+    </div>
+  }
+
+  <p-dialog
+    [header]="editandoPessoa ? 'Editar Pessoa' : 'Cadastrar Nova Pessoa'"
+    (onHide)="esconderFormularioModal(pessoaForm)"
+    [modal]="true"
+    [(visible)]="modalFormularioAberto"
+    [draggable]="false"
+    [style]="{ width: '35rem' }"
+  >
+    <form
+      #pessoaForm="ngForm"
+      class="flex flex-col w-full space-y-4"
+      (ngSubmit)="enviarFormulario(pessoaForm)"
+    >
+      <div class="flex flex-col space-y-2">
+        <label for="nome" class="font-semibold">Nome *</label>
+        <input
+          [ngModel]="editandoPessoa?.nome"
+          required
+          name="nome"
+          id="nome"
+          type="text"
+          placeholder="Nome completo..."
+          pInputText
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="cpfCnpj" class="font-semibold">CPF/CNPJ *</label>
+        <input
+          [ngModel]="editandoPessoa?.cpfCnpj"
+          required
+          name="cpfCnpj"
+          id="cpfCnpj"
+          type="text"
+          placeholder="CPF ou CNPJ..."
+          pInputText
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="funcao" class="font-semibold">Função</label>
+        <p-select
+          [ngModel]="editandoPessoa?.funcao"
+          [options]="funcaoOptions"
+          name="funcao"
+          id="funcao"
+          placeholder="Selecione uma função"
+          [showClear]="true"
+          styleClass="w-full"
+        ></p-select>
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="observacao" class="font-semibold">Observação</label>
+        <textarea
+          [ngModel]="editandoPessoa?.observacao"
+          name="observacao"
+          id="observacao"
+          rows="4"
+          placeholder="Observações sobre a pessoa..."
+          pInputTextarea
+          class="w-full"
+        ></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4">
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          [outlined]="true"
+          (click)="modalFormularioAberto = false; esconderFormularioModal(pessoaForm)"
+        ></p-button>
+        <p-button
+          [label]="editandoPessoa ? 'Salvar Edições' : 'Cadastrar'"
+          type="submit"
+          [disabled]="pessoaForm.invalid"
+        ></p-button>
+      </div>
+    </form>
+  </p-dialog>
+</main>
