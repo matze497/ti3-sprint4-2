@@ -1,0 +1,1 @@
+EXEC sp_rename 'Funcionarios.cpf_cnpj', 'cpf', 'COLUMN';
